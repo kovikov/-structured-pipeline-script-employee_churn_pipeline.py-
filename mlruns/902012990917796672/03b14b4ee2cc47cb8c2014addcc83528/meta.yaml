@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/renef/OneDrive/Desktop/BIG_PROJECT/mlruns/902012990917796672/03b14b4ee2cc47cb8c2014addcc83528/artifacts
+end_time: 1746211096850
+entry_point_name: ''
+experiment_id: '902012990917796672'
+lifecycle_stage: active
+run_id: 03b14b4ee2cc47cb8c2014addcc83528
+run_name: LogisticRegression
+run_uuid: 03b14b4ee2cc47cb8c2014addcc83528
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746211084691
+status: 3
+tags: []
+user_id: renef
