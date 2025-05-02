@@ -529,50 +529,78 @@ if __name__ == "__main__":
                 scaler=scaler_object,          # Pass the fitted scaler
                 feature_names=feature_names    # Pass the list of feature names
             )
-            rf_run_id = rf_results["run_id"] # Extract the run_id for the default RF
+            # We keep the run_id of the default model in case tuning fails or is skipped
+            default_rf_run_id = rf_results["run_id"]
             print("\nSteps 8 & 9 completed.")
 
             # --- Step 10: Hyperparameter Tuning (Random Forest) ---
-            print("\n--- Step 10: Hyperparameter Tuning (SKIPPED) --- ")
-            # # Define parameter distribution for RandomizedSearchCV
-            # rf_param_dist = {
-            #     'n_estimators': [int(x) for x in np.linspace(start=100, stop=1000, num=10)], # 100 to 1000 trees
-            #     'max_features': ['sqrt', 'log2', None], # Consider sqrt, log2 or all features
-            #     'max_depth': [int(x) for x in np.linspace(10, 110, num=11)] + [None], # 10 to 110 depth, plus no limit
-            #     'min_samples_split': [2, 5, 10],        # Min samples to split
-            #     'min_samples_leaf': [1, 2, 4],         # Min samples per leaf
-            #     'bootstrap': [True, False],            # Whether bootstrap samples are used
-            #     'criterion': ['gini', 'entropy']       # Split criterion
-            # }
+            # Re-enabled
+            print("\n--- Step 10: Hyperparameter Tuning (RandomForestClassifier) --- ")
+            # Define parameter distribution for RandomizedSearchCV
+            rf_param_dist = {
+                'n_estimators': [int(x) for x in np.linspace(start=100, stop=1000, num=10)],
+                'max_features': ['sqrt', 'log2', None],
+                'max_depth': [int(x) for x in np.linspace(10, 110, num=11)] + [None],
+                'min_samples_split': [2, 5, 10],
+                'min_samples_leaf': [1, 2, 4],
+                'bootstrap': [True, False],
+                'criterion': ['gini', 'entropy']
+            }
 
-            # # Perform tuning (using f1 score as the primary metric)
-            # best_rf_estimator = tune_hyperparameters(
-            #     model=RandomForestClassifier(random_state=RANDOM_STATE), # Pass a new instance
-            #     param_dist=rf_param_dist,
-            #     X_train=X_train_res, # Tune on resampled training data
-            #     y_train=y_train_res,
-            #     n_iter=50,  # Number of random combinations to try (adjust as needed)
-            #     cv=5,       # 5-fold cross-validation
-            #     scoring='f1',
-            #     random_state=RANDOM_STATE
-            # )
-            # print("\nStep 10 completed.") # No longer completed
-            best_rf_estimator = rf_model # Use the default RF model as 'best' since tuning is skipped
+            # Perform tuning (using f1 score as the primary metric)
+            try:
+                best_rf_estimator = tune_hyperparameters(
+                    model=RandomForestClassifier(random_state=RANDOM_STATE), # Pass a new instance
+                    param_dist=rf_param_dist,
+                    X_train=X_train_res,
+                    y_train=y_train_res,
+                    n_iter=50,  # Keep n_iter=50, adjust if needed for faster/slower tuning
+                    cv=5,
+                    scoring='f1',
+                    random_state=RANDOM_STATE
+                )
+                print("Hyperparameter tuning completed successfully.")
+                tuning_succeeded = True
+            except Exception as e:
+                print(f"Error during hyperparameter tuning: {e}")
+                print("Falling back to default Random Forest model.")
+                best_rf_estimator = rf_model # Use the default model trained earlier
+                tuning_succeeded = False
 
-            # --- Step 11: Select Best Model ---
-            print("\n--- Step 11: Select Best Model --- ")
-            final_model = best_rf_estimator
-            final_model_name = "RandomForestClassifier_Default"
-            # Use the captured run_id for the selected model
-            final_model_run_id = rf_run_id
-            print(f"Selected '{final_model_name}' (Run ID: {final_model_run_id}) as the final model (Tuning Skipped).")
+            print("\nStep 10 finished.")
+
+            # --- Step 11: Select and Evaluate Final Model ---
+            print("\n--- Step 11: Select and Evaluate Final Model --- ")
+            if tuning_succeeded:
+                final_model = best_rf_estimator
+                final_model_name = "RandomForestClassifier_Tuned"
+                print(f"Selected tuned model '{final_model_name}' based on hyperparameter search.")
+                # Evaluate the *tuned* model on the test set and log it
+                print("\nEvaluating tuned model on test set...")
+                final_model_results = train_evaluate_log_model(
+                    model=final_model,
+                    model_name=final_model_name,
+                    X_train=X_train_res,
+                    y_train=y_train_res,
+                    X_test=X_test,
+                    y_test=y_test,
+                    scaler=scaler_object,
+                    feature_names=feature_names
+                )
+                final_model_run_id = final_model_results["run_id"]
+            else:
+                final_model = rf_model # Fallback to default model
+                final_model_name = "RandomForestClassifier_Default"
+                final_model_run_id = default_rf_run_id # Use run_id from the default run
+                print(f"Selected default model '{final_model_name}' (Run ID: {final_model_run_id}) due to tuning error.")
+
+            print(f"Final selected model Run ID: {final_model_run_id}")
             print("Step 11 completed.")
 
             # --- Step 12: Save/Register Final Model ---
             print("\n--- Step 12: Register Final Model in MLflow --- ")
-            # The model is already logged by train_evaluate_log_model.
-            # We will register the logged model from the specific run.
             MODEL_REGISTRY_NAME = "EmployeeChurnModel"
+            # Use the run ID of the final selected model (either tuned or default)
             model_uri = f"runs:/{final_model_run_id}/model"
             print(f"Registering model from URI: {model_uri}")
             try:
@@ -581,29 +609,16 @@ if __name__ == "__main__":
                     name=MODEL_REGISTRY_NAME
                 )
                 print(f"Registered model '{MODEL_REGISTRY_NAME}', Version: {registered_model_version.version}")
-                # Optional: Add description or transition stage
-                # client = mlflow.tracking.MlflowClient()
-                # client.update_model_version(
-                #     name=MODEL_REGISTRY_NAME,
-                #     version=registered_model_version.version,
-                #     description="Initial Random Forest model with default parameters."
-                # )
-                # client.transition_model_version_stage(
-                #     name=MODEL_REGISTRY_NAME,
-                #     version=registered_model_version.version,
-                #     stage="Staging"
-                # )
             except Exception as e:
                 print(f"Error registering model: {e}")
-
             print("Step 12 completed.")
 
             # --- Next Steps (Placeholders) ---
             print("\n--- Chronological Steps Planned ---")
             print("1-7. Preprocessing, Baseline (Completed)")
             print("8&9. Train Models & Log with MLflow (Completed)")
-            print("10. Hyperparameter Tuning (SKIPPED)")
-            print("11. Select Best Model (Completed - Default RF selected)")
+            print("10. Hyperparameter Tuning (Completed)")
+            print("11. Select Best Model (Completed)")
             print("12. Save Final Model (Registered in MLflow Model Registry)")
             print("13. Containerize Application (Docker)")
             print("14. Deploy Model (FastAPI)")

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/renef/OneDrive/Desktop/BIG_PROJECT/mlruns/902012990917796672/175477277f2b4e4f8d7bfb2f33cf8565/artifacts
+end_time: 1746221365493
+entry_point_name: ''
+experiment_id: '902012990917796672'
+lifecycle_stage: active
+run_id: 175477277f2b4e4f8d7bfb2f33cf8565
+run_name: RandomForestClassifier_Default
+run_uuid: 175477277f2b4e4f8d7bfb2f33cf8565
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746221354664
+status: 3
+tags: []
+user_id: renef

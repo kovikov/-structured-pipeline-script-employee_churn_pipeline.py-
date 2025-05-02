@@ -1,0 +1,33 @@
+{
+  "feature_names": [
+    "SATISFACTION_LEVEL",
+    "LAST_EVALUATION",
+    "NUMBER_PROJECT",
+    "AVERAGE_MONTLY_HOURS",
+    "TIME_SPEND_COMPANY",
+    "WORK_ACCIDENT",
+    "PROMOTION_LAST_5YEARS",
+    "ABSENTEEISM",
+    "MANAGER_FEEDBACK_SCORE",
+    "REMOTE_WORK",
+    "ENGAGEMENT_SCORE",
+    "DEPARTMENTS_RandD",
+    "DEPARTMENTS_accounting",
+    "DEPARTMENTS_management",
+    "DEPARTMENTS_marketing",
+    "DEPARTMENTS_product_mng",
+    "DEPARTMENTS_sales",
+    "DEPARTMENTS_support",
+    "DEPARTMENTS_technical",
+    "SALARY_low",
+    "SALARY_medium",
+    "JOB_ROLE_Financial Analyst",
+    "JOB_ROLE_IT Support",
+    "JOB_ROLE_Marketing Analyst",
+    "JOB_ROLE_Operations Manager",
+    "JOB_ROLE_Product Manager",
+    "JOB_ROLE_Research Scientist",
+    "JOB_ROLE_Sales Executive",
+    "JOB_ROLE_Software Engineer"
+  ]
+}

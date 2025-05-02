@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1746221961957
+current_stage: None
+description: null
+last_updated_timestamp: 1746221961957
+name: EmployeeChurnModel
+run_id: c5648c7f0e0941cc9ca8cf8ea43ba181
+run_link: null
+source: file:///C:/Users/renef/OneDrive/Desktop/BIG_PROJECT/mlruns/902012990917796672/c5648c7f0e0941cc9ca8cf8ea43ba181/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///C:/Users/renef/OneDrive/Desktop/BIG_PROJECT/mlruns/902012990917796672/c5648c7f0e0941cc9ca8cf8ea43ba181/artifacts/model
+user_id: null
+version: 3
