@@ -17,8 +17,11 @@ from typing import List
 # Assumes MLflow tracking server is running locally or accessible
 # For local default tracking URI: file:///path/to/your/mlruns
 # Ensure MLFLOW_TRACKING_URI is set if not using local default
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "file:///" + os.path.abspath(os.path.join(os.path.dirname(__file__), "mlruns")).replace("\\", "/"))
-mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+
+# Re-enable reading from environment variable set in Dockerfile or default to container path
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "file:///app/mlruns")
+print(f"Using MLFLOW_TRACKING_URI: {MLFLOW_TRACKING_URI}") # Add print for debugging
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI) # Re-enable setting the URI
 
 REGISTERED_MODEL_NAME = "EmployeeChurnModel"
 MODEL_VERSION = "2" # Based on the last successful registration
